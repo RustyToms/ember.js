@@ -65,18 +65,33 @@ AttrNode.prototype.render = function render(buffer) {
   }
 
 
-  // If user is typing in a value we don't want to rerender and loose cursor position.
+  // If user is typing in a value we don't want to rerender and lose cursor position.
   if (this.hasRenderedInitially && this.attrName === 'value' && this._morph.element.value === value) {
     this.lastValue = value;
     return;
   }
 
   if (this.lastValue !== null || value !== null) {
+    if (this.attrName === "class" && this._morph.element.className && this.lastValue !== this._morph.element.className) {
+      this.renderWithForeignClass(value);
+    } else {
+      this._morph.setContent(value);
+    }
+
     this._deprecateEscapedStyle(value);
-    this._morph.setContent(value);
     this.lastValue = value;
     this.hasRenderedInitially = true;
   }
+};
+
+AttrNode.prototype.renderWithForeignClass = function renderWithForeignClass(value) {
+  var citizenClasses = this.lastValue.split(" ");
+  var actualClasses = this._morph.element.className.split(" ");
+  var foreignClasses = actualClasses.filter(function(el) {
+    return citizenClasses.indexOf(el) < 0;
+  });
+
+  this._morph.setContent(value + " " + foreignClasses.join(" "));
 };
 
 AttrNode.prototype._deprecateEscapedStyle = function AttrNode_deprecateEscapedStyle(value) {
