@@ -56,42 +56,43 @@ AttrNode.prototype.render = function render(buffer) {
 
   var value = read(this.attrValue);
 
-  if (this.attrName === 'value' && (value === null || value === undefined)) {
-    value = '';
-  }
-
   if (value === undefined) {
     value = null;
   }
 
+  if (this.attrName === 'value') {
+    if (value === null) {
+      value = '';
+    }
 
-  // If user is typing in a value we don't want to rerender and lose cursor position.
-  if (this.hasRenderedInitially && this.attrName === 'value' && this._morph.element.value === value) {
-    this.lastValue = value;
-    return;
+    if (this.hasRenderedInitially && this._morph.element.value === value) {
+      // If user is typing in a value we don't want to rerender and lose cursor position.
+      this.lastValue = value;
+      return;
+    }
   }
 
   if (this.lastValue !== null || value !== null) {
     if (this.attrName === "class" && this._morph.element.className && this.lastValue !== this._morph.element.className) {
-      this.renderWithForeignClass(value);
+      this.renderWithAlienClass(value);
     } else {
+      this._deprecateEscapedStyle(value);
       this._morph.setContent(value);
     }
 
-    this._deprecateEscapedStyle(value);
     this.lastValue = value;
     this.hasRenderedInitially = true;
   }
 };
 
-AttrNode.prototype.renderWithForeignClass = function renderWithForeignClass(value) {
-  var citizenClasses = this.lastValue.split(" ");
-  var actualClasses = this._morph.element.className.split(" ");
-  var foreignClasses = actualClasses.filter(function(el) {
+AttrNode.prototype.renderWithAlienClass = function AttrNode_renderWithAlienClass(value) {
+  var citizenClasses = this.lastValue ? this.lastValue.split(" ") : [];
+  var allClasses = this._morph.element.className.split(" ");
+  var alienClasses = allClasses.filter(function(el) {
     return citizenClasses.indexOf(el) < 0;
   });
 
-  this._morph.setContent(value + " " + foreignClasses.join(" "));
+  this._morph.setContent(value + " " + alienClasses.join(" "));
 };
 
 AttrNode.prototype._deprecateEscapedStyle = function AttrNode_deprecateEscapedStyle(value) {
