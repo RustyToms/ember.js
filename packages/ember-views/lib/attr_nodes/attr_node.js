@@ -73,7 +73,7 @@ AttrNode.prototype.render = function render(buffer) {
   }
 
   if (this.lastValue !== null || value !== null) {
-    if (this.attrName === "class" && this._morph.element.className && this.lastValue !== this._morph.element.className) {
+    if (this.attrName === "class" && this.lastValue !== this._morph.element.className && this._morph.element.className && typeof this._morph.element.className === "string") {
       this.renderWithAlienClass(value);
     } else {
       this._deprecateEscapedStyle(value);
